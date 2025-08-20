@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horario - Prof. Adriana Barrios</title>
+    <style>
+        :root {
+            --header-bg: #006400; /* Verde pino */
+            --header-text: #ffffff;
+            --body-bg: #fdf2f8; /* Fondo muy claro, casi blanco */
+            --table-bg: #ffffff;
+            --highlight-bg: #fce7f3; /* Rosa palo muy claro para resaltar */
+            --dimmed-bg: #fafafa; /* Gris muy claro para apagar */
+            --border-color: #f0d6e8; /* Rosa pino muy claro para bordes */
+            --hover-row: #f9f0f6; /* Rosa palo claro para hover */
+            --control-bg: #ffffff;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --primary-button: #be185d; /* Rosa viejo medio */
+            --primary-button-hover: #9d174d;
+            --warning-color: #dc2626; /* Rojo para pendientes */
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 10px;
+            background-color: var(--body-bg);
+            font-size: 14px;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            font-size: 1.4em;
+            margin-bottom: 5px;
+        }
+        h2 {
+            text-align: center;
+            color: #555;
+            font-size: 1.1em;
+            margin-top: 0;
+        }
+        .controls {
+            margin: 15px 0;
+            text-align: center;
+            background-color: var(--control-bg);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px var(--shadow);
+        }
+        .control-group {
+            margin: 10px 0;
+        }
+        label {
+            display: block;
+            margin: 5px 0 2px;
+            font-weight: 600;
+            font-size: 0.9em;
+            color: #555;
+        }
+        select, input, textarea, button {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin: 0 0 8px 0;
+            width: 90%;
+            max-width: 300px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: var(--primary-button);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: var(--primary-button-hover);
+        }
+        #printButton {
+            background-color: #059669; /* Verde para impresión */
+        }
+        #printButton:hover {
+            background-color: #047857;
+        }
+        
+        .schedule-container {
+            overflow-x: auto;
+            margin-top: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+        table {
+            width: 100%;
+            min-width: 500px;
+            border-collapse: collapse;
+            background-color: var(--table-bg);
+        }
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 10px 6px;
+            text-align: center;
+            font-size: 0.85em;
+        }
+        th {
+            background-color: var(--header-bg);
+            color: var(--header-text);
+            font-weight: bold;
+            padding: 12px 6px;
+        }
+        tr:nth-child(even) {
+            background-color: #fcf9fb; /* Rosa palo extremadamente claro */
+        }
+        tr:hover {
+            background-color: var(--hover-row) !important; /* Forzar hover */
+        }
+        
+        /* Efectos de "encendido/apagado" */
+        .dimmed-column {
+            background-color: var(--dimmed-bg) !important;
+            opacity: 0.6;
+        }
+        .highlighted-column {
+            background-color: var(--highlight-bg) !important;
+            font-weight: bold;
+        }
+        .hidden { 
+            display: none; 
+        }
+
+        .footer {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 0.8em;
+            color: #555;
+            background-color: var(--control-bg);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px var(--shadow);
+        }
+        .footer p {
+            margin: 5px 0;
+        }
+
+        /* Modal para temas y pendientes */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 25px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+        }
+        .modal h3 {
+            margin-top: 0;
+            color: var(--header-bg);
+        }
+        .modal-section {
+            margin: 15px 0;
+            padding: 10px;
+            border-left: 3px solid var(--header-bg);
+        }
+
+        /* Reporte */
+        #reportSection {
+            margin-top: 30px;
+            background-color: var(--control-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px var(--shadow);
+            display: none;
+        }
+        #reportHeader {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+        }
+        #reportHeader h3 {
+            color: var(--header-bg);
+            margin: 5px 0;
+        }
+        #reportContent {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            max-height: 400px;
+            overflow-y: auto;
+            line-height: 1.6;
+        }
+        .pending-item {
+            color: var(--warning-color);
+            font-weight: bold;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #reportSection, #reportSection * {
+                visibility: visible;
+            }
+            #reportSection {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                box-shadow: none;
+                background: white;
+            }
+            #reportContent {
+                box-shadow: none;
+                border: 1px solid #000;
+            }
+            button {
+                display: none !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+
+        @media (min-width: 768px) {
+            body {
+                margin: 20px;
+                font-size: 16px;
+            }
+            h1 { font-size: 1.8em; }
+            h2 { font-size: 1.3em; }
+            .controls {
+                display: flex;
+                justify-content: center;
+                align-items: flex-start;
+                flex-wrap: wrap;
+                padding: 20px;
+            }
+            .control-group {
+                margin: 0 15px;
+            }
+            label {
+                display: inline-block;
+                margin: 0 10px 0 0;
+            }
+            select, input, textarea, button {
+                width: auto;
+                margin: 0 5px;
+            }
+            th, td {
+                padding: 12px 8px;
+                font-size: 0.9em;
+            }
+            .modal-content {
+                width: 70%;
+                padding: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Horario - Prof. Adriana Alicia Barrios Rodríguez</h1>
+    <h2>Primer Semestre 2025-2026</h2>
+
+    <div class="controls">
+        <div class="control-group">
+            <label for="filterDay">Filtrar por Día:</label>
+            <select id="filterDay" onchange="filterSchedule()">
+                <option value="all">Todos los Días</option>
+                <option value="LUNES">Lunes</option>
+                <option value="MARTES">Martes</option>
+                <option value="MIERCOLES">Miércoles</option>
+                <option value="JUEVES">Jueves</option>
+                <option value="VIERNES">Viernes</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label for="filterSubject">Filtrar por Materia:</label>
+            <select id="filterSubject" onchange="filterSchedule()">
+                <option value="all">Todas las Materias</option>
+                <option value="FISIOPATOLOGIA">FISIOPATOLOGIA</option>
+                <option value="PATOLOGÍA CLÍNICA II">PATOLOGÍA CLÍNICA II</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label for="reportDay">Generar Reporte del Día:</label>
+            <select id="reportDay">
+                <option value="LUNES">Lunes</option>
+                <option value="MARTES">Martes</option>
+                <option value="MIERCOLES">Miércoles</option>
+                <option value="JUEVES">Jueves</option>
+                <option value="VIERNES">Viernes</option>
+            </select>
+            <button onclick="generateReport()">Generar Reporte</button>
+        </div>
+    </div>
+
+    <div class="schedule-container">
+        <table id="scheduleTable">
+            <thead>
+                <tr>
+                    <th>Materia</th>
+                    <th>Grupo</th>
+                    <th id="col-lun">Lun</th>
+                    <th id="col-mar">Mar</th>
+                    <th id="col-mie">Mié</th>
+                    <th id="col-jue">Jue</th>
+                    <th id="col-vie">Vie</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Ordenado por hora de inicio -->
+                <tr>
+                    <td>PATOLOGÍA CLÍNICA II</td>
+                    <td>5-1</td>
+                    <td class="hora-cell" data-dia="LUNES">8:00-9:40</td>
+                    <td class="hora-cell" data-dia="MARTES">8:00-9:40</td>
+                    <td class="hora-cell" data-dia="MIERCOLES">---</td>
+                    <td class="hora-cell" data-dia="JUEVES">9:40-10:30</td>
+                    <td class="hora-cell" data-dia="VIERNES">8:00-9:40-</td>
+                    <td><button onclick="openTopicModal(this, 'PATOLOGÍA CLÍNICA II', '5-1')">Temas/Pendientes</button></td>
+                </tr>
+                <tr>
+                    <td>FISIOPATOLOGIA</td>
+                    <td>2-2</td>
+                    <td class="hora-cell" data-dia="LUNES">9:40-11:20</td>
+                    <td class="hora-cell" data-dia="MARTES">9:40-11:20</td>
+                    <td class="hora-cell" data-dia="MIERCOLES">9:40-10:30</td>
+                    <td class="hora-cell" data-dia="JUEVES">----</td>
+                    <td class="hora-cell" data-dia="VIERNES">----</td>
+                    <td><button onclick="openTopicModal(this, 'FISIOPATOLOGIA', '2-2')">Temas/Pendientes</button></td>
+                </tr>
+                <tr>
+                    <td>PATOLOGÍA CLÍNICA II</td>
+                    <td>5-2</td>
+                    <td class="hora-cell" data-dia="LUNES">11:20-1:00</td>
+                    <td class="hora-cell" data-dia="MARTES">11:20-1:00</td>
+                    <td class="hora-cell" data-dia="MIERCOLES">8:00-9:40</td>
+                    <td class="hora-cell" data-dia="JUEVES">10:30-11:20</td>
+                    <td class="hora-cell" data-dia="VIERNES">----</td>
+                    <td><button onclick="openTopicModal(this, 'PATOLOGÍA CLÍNICA II', '5-2')">Temas/Pendientes</button></td>
+                </tr>
+                <tr>
+                    <td>FISIOPATOLOGIA</td>
+                    <td>2-1</td>
+                    <td class="hora-cell" data-dia="LUNES">----</td>
+                    <td class="hora-cell" data-dia="MARTES">----</td>
+                    <td class="hora-cell" data-dia="MIERCOLES">10:30-11:20</td>
+                    <td class="hora-cell" data-dia="JUEVES">11:20-1:00</td>
+                    <td class="hora-cell" data-dia="VIERNES">11:20-1:00</td>
+                    <td><button onclick="openTopicModal(this, 'FISIOPATOLOGIA', '2-1')">Temas/Pendientes</button></td>
+                </tr>
+                <tr>
+                    <td>PATOLOGÍA CLÍNICA II</td>
+                    <td>5-3</td>
+                    <td class="hora-cell" data-dia="LUNES">2:40-4:20</td>
+                    <td class="hora-cell" data-dia="MARTES">4:20-5:10</td>
+                    <td class="hora-cell" data-dia="MIERCOLES">2:40-4:20</td>
+                    <td class="hora-cell" data-dia="JUEVES">2:40-4:20</td>
+                    <td class="hora-cell" data-dia="VIERNES">-----</td>
+                    <td><button onclick="openTopicModal(this, 'PATOLOGÍA CLÍNICA II', '5-3')">Temas/Pendientes</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="reportSection">
+        <div id="reportHeader">
+            <h3>REPORTE DE CLASES</h3>
+            <p><strong>Profesora:</strong> Adriana Alicia Barrios Rodríguez</p>
+            <p><strong>Fecha del Reporte:</strong> <span id="reportDate"></span></p>
+            <p><strong>Día de Clases:</strong> <span id="reportDayHeader"></span></p>
+        </div>
+        <div id="reportContent"></div>
+        <div style="text-align: center; margin-top: 20px;" class="no-print">
+            <button id="printButton" onclick="window.print()">Imprimir Reporte</button>
+            <button onclick="document.getElementById('reportSection').style.display='none'">Cerrar Reporte</button>
+        </div>
+    </div>
+
+    <div id="topicModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeTopicModal()">&times;</span>
+            <h3 id="modalTitle">Temas y Pendientes</h3>
+            <p><strong>Materia:</strong> <span id="modalMateria"></span></p>
+            <p><strong>Grupo:</strong> <span id="modalGrupo"></span></p>
+            
+            <div class="modal-section">
+                <label for="topicText">Temas abordados:</label>
+                <textarea id="topicText" rows="3" placeholder="Escribe aquí los temas vistos en clase..."></textarea>
+            </div>
+            
+            <div class="modal-section">
+                <label for="pendingText">Pendientes/Tareas:</label>
+                <textarea id="pendingText" rows="2" placeholder="Escribe aquí tareas, pendientes o recordatorios..."></textarea>
+            </div>
+            
+            <button onclick="saveTopicsAndPending()" style="margin-top: 10px;">Guardar</button>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p><strong>Inicio de clases:</strong> 25 ago 2025</p>
+        <p><strong>Fin de clases:</strong> 16 ene 2026</p>
+        <p><strong>Exámenes:</strong> 5-16 ene 2026</p>
+        <p><strong>Prácticas (límite):</strong> 5 sep 2025</p>
+    </div>
+
+    <script>
+        // Almacenamiento de temas y pendientes en memoria
+        let classData = {};
+
+        function filterSchedule() {
+            const dayFilter = document.getElementById('filterDay').value;
+            const subjectFilter = document.getElementById('filterSubject').value;
+            const table = document.getElementById('scheduleTable');
+            const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+            // Resetear efectos de columna
+            resetColumnEffects();
+
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                const subject = row.cells[0].textContent.trim();
+                let showRow = true;
+
+                // Filtrar por materia
+                if (subjectFilter !== 'all' && subject !== subjectFilter) {
+                    showRow = false;
+                }
+
+                // Filtrar por día (solo si no se ha ocultado ya por materia)
+                if (showRow && dayFilter !== 'all') {
+                    let dayFound = false;
+                    const horaCells = row.querySelectorAll('.hora-cell');
+                    for (let j = 0; j < horaCells.length; j++) {
+                        if (horaCells[j].getAttribute('data-dia') === dayFilter) {
+                            const horaText = horaCells[j].textContent.trim();
+                            // Verificar que no sea un marcador de "sin clase"
+                            if (!(horaText === '----' || horaText === '---' || horaText === '-----')) {
+                                dayFound = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!dayFound) {
+                        showRow = false;
+                    }
+                }
+
+                if (showRow) {
+                    row.classList.remove('hidden');
+                } else {
+                    row.classList.add('hidden');
+                }
+            }
+
+            // Aplicar efecto de "encendido/apagado" si se seleccionó un día
+            if (dayFilter !== 'all') {
+                applyColumnEffects(dayFilter);
+            }
+        }
+
+        function resetColumnEffects() {
+            const headers = document.querySelectorAll('th');
+            const rows = document.querySelectorAll('tbody tr');
+            
+            // Resetear encabezados
+            headers.forEach(th => th.classList.remove('dimmed-column', 'highlighted-column'));
+            
+            // Resetear celdas
+            rows.forEach(row => {
+                Array.from(row.cells).forEach(cell => {
+                    cell.classList.remove('dimmed-column', 'highlighted-column');
+                });
+            });
+        }
+
+        function applyColumnEffects(selectedDay) {
+            const dayMap = {
+                'LUNES': 2, 'MARTES': 3, 'MIERCOLES': 4, 'JUEVES': 5, 'VIERNES': 6
+            };
+            const colIndex = dayMap[selectedDay];
+            
+            if (colIndex === undefined) return;
+
+            const headers = document.querySelectorAll('th');
+            const rows = document.querySelectorAll('tbody tr');
+            
+            // Resaltar columna seleccionada
+            headers[colIndex].classList.add('highlighted-column');
+            rows.forEach(row => {
+                row.cells[colIndex].classList.add('highlighted-column');
+            });
+            
+            // Atenuar otras columnas de día
+            headers.forEach((th, index) => {
+                if (index >= 2 && index <= 6 && index !== colIndex) {
+                    th.classList.add('dimmed-column');
+                }
+            });
+            rows.forEach(row => {
+                Array.from(row.cells).forEach((cell, index) => {
+                    if (index >= 2 && index <= 6 && index !== colIndex) {
+                        cell.classList.add('dimmed-column');
+                    }
+                });
+            });
+        }
+
+        // Funciones para temas y pendientes
+        let currentMateria = '';
+        let currentGrupo = '';
+
+        function openTopicModal(button, materia, grupo) {
+            currentMateria = materia;
+            currentGrupo = grupo;
+            
+            document.getElementById('modalTitle').textContent = `Temas y Pendientes - ${materia} ${grupo}`;
+            document.getElementById('modalMateria').textContent = materia;
+            document.getElementById('modalGrupo').textContent = grupo;
+            
+            // Cargar datos guardados si existen
+            const key = `${materia}-${grupo}`;
+            const data = classData[key] || { topics: '', pending: '' };
+            document.getElementById('topicText').value = data.topics || '';
+            document.getElementById('pendingText').value = data.pending || '';
+            
+            document.getElementById('topicModal').style.display = 'block';
+        }
+
+        function closeTopicModal() {
+            document.getElementById('topicModal').style.display = 'none';
+            currentMateria = '';
+            currentGrupo = '';
+        }
+
+        function saveTopicsAndPending() {
+            if (currentMateria && currentGrupo) {
+                const key = `${currentMateria}-${currentGrupo}`;
+                classData[key] = {
+                    topics: document.getElementById('topicText').value,
+                    pending: document.getElementById('pendingText').value
+                };
+                alert('Información guardada correctamente.');
+                closeTopicModal();
+            }
+        }
+
+        // Generar reporte
+        function generateReport() {
+            const selectedDay = document.getElementById('reportDay').value;
+            
+            // Actualizar encabezado del reporte
+            document.getElementById('reportDayHeader').textContent = selectedDay;
+            document.getElementById('reportDate').textContent = new Date().toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            let report = '';
+            const rows = document.querySelectorAll('tbody tr');
+            let foundClasses = false;
+            
+            rows.forEach(row => {
+                const materia = row.cells[0].textContent.trim();
+                const grupo = row.cells[1].textContent.trim();
+                const horaCells = row.querySelectorAll('.hora-cell');
+                
+                let classInfo = null;
+                horaCells.forEach(cell => {
+                    if (cell.getAttribute('data-dia') === selectedDay) {
+                        const horaText = cell.textContent.trim();
+                        // Verificar que no sea un marcador de "sin clase"
+                        if (!(horaText === '----' || horaText === '---' || horaText === '-----')) {
+                             classInfo = {
+                                hora: horaText,
+                                data: classData[`${materia}-${grupo}`] || { topics: '', pending: '' }
+                            };
+                        }
+                    }
+                });
+                
+                if (classInfo) {
+                    foundClasses = true;
+                    report += `[${classInfo.hora}] ${materia} - Grupo ${grupo}\n`;
+                    report += `----------------------------------------\n`;
+                    
+                    if (classInfo.data.topics) {
+                        report += `TEMAS: ${classInfo.data.topics}\n`;
+                    } else {
+                        report += `TEMAS: No se han registrado temas.\n`;
+                    }
+                    
+                    if (classInfo.data.pending) {
+                        report += `PENDIENTES: ${classInfo.data.pending}\n`;
+                    } else {
+                        report += `PENDIENTES: No hay pendientes registrados.\n`;
+                    }
+                    
+                    report += `\n`;
+                }
+            });
+            
+            if (!foundClasses) {
+                report = `No hay clases programadas para el ${selectedDay}.\n`;
+            }
+            
+            document.getElementById('reportContent').textContent = report;
+            document.getElementById('reportSection').style.display = 'block';
+        }
+
+        // Cerrar modal al hacer clic fuera
+        window.onclick = function(event) {
+            const modal = document.getElementById('topicModal');
+            if (event.target == modal) {
+                closeTopicModal();
+            }
+        }
+    </script>
+
+</body>
+</html>
