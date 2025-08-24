@@ -18,12 +18,12 @@
             --shadow: rgba(0, 0, 0, 0.1);
             --primary-button: #be185d; /* Rosa viejo medio */
             --primary-button-hover: #9d174d;
-            --warning-color: #dc2626; /* Rojo para pendientes */
-            --secondary-button: #059669; /* Verde para IA/impresión */
+            --warning-color: #dc2626; /* Rojo para eliminar/alerta */
+            --secondary-button: #059669; /* Verde para impresión */
             --secondary-button-hover: #047857;
-            --ai-bg: #e0e7ff; /* Lavanda suave para AI */
+            --agenda-bg: #e0e7ff; /* Lavanda suave para agenda */
         }
-
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 10px;
@@ -50,9 +50,12 @@
             padding: 15px;
             border-radius: 10px;
             box-shadow: 0 2px 6px var(--shadow);
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
         }
         .control-group {
-            margin: 10px 0;
+            margin: 10px;
         }
         label {
             display: block;
@@ -83,18 +86,20 @@
         button:hover {
             background-color: var(--primary-button-hover);
         }
-        #printButton, #generateSummaryButton {
+        #printButton, #viewHistoryButton, #viewPendingHistoryButton {
             background-color: var(--secondary-button);
         }
-        #printButton:hover, #generateSummaryButton:hover {
+        #printButton:hover, #viewHistoryButton:hover, #viewPendingHistoryButton:hover {
             background-color: var(--secondary-button-hover);
         }
-        
+
         .schedule-container {
             overflow-x: auto;
             margin-top: 10px;
             border-radius: 10px;
             box-shadow: 0 2px 8px var(--shadow);
+            background-color: var(--table-bg);
+            padding: 10px;
         }
         table {
             width: 100%;
@@ -132,6 +137,80 @@
         }
         .hidden { 
             display: none; 
+        }
+
+        /* VISTA DE CALENDARIO */
+        .calendar-view {
+            display: none;
+        }
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 0 10px;
+        }
+        .calendar-header h3 {
+            margin: 0;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--header-bg);
+        }
+        .calendar-header button {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: var(--header-bg);
+            padding: 5px;
+            margin: 0 5px;
+        }
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            font-weight: bold;
+            background-color: var(--header-bg);
+            color: var(--header-text);
+            padding: 8px 0;
+            border-radius: 8px 8px 0 0;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            padding: 10px;
+        }
+        .calendar-cell {
+            background-color: #fce7f3;
+            border-radius: 8px;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+        }
+        .calendar-cell.has-class {
+            background-color: var(--secondary-button);
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .calendar-cell.has-class:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .calendar-cell.disabled, .calendar-cell.empty {
+            background-color: #f7f7f7;
+            color: #ccc;
+            cursor: default;
+        }
+        .calendar-cell.today {
+            border: 2px solid var(--primary-button);
         }
 
         .footer {
@@ -181,8 +260,7 @@
             top: 10px;
             right: 15px;
         }
-        .close:hover,
-        .close:focus {
+        .close:hover, .close:focus {
             color: black;
         }
         .modal h3 {
@@ -195,27 +273,46 @@
             padding: 10px;
             border-left: 3px solid var(--header-bg);
         }
+        
+        .class-list-item {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #fafafa;
+        }
+        .class-list-item h4 {
+            margin-top: 0;
+            color: var(--secondary-button);
+        }
+        .class-list-item p {
+            margin: 5px 0;
+        }
+        .class-list-item .agenda-actions {
+            margin-top: 10px;
+            text-align: right;
+        }
 
-        /* Reporte */
-        #reportSection {
+        /* Reporte y Historial */
+        #reportSection, #historyModal, #viewReportModal, #customAlertModal, #pendingHistoryModal {
             margin-top: 30px;
             background-color: var(--control-bg);
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 2px 6px var(--shadow);
-            display: none;
         }
-        #reportHeader {
+        #reportSection { display: none; }
+        #reportHeader, #historyHeader, #pendingHistoryHeader {
             text-align: center;
             margin-bottom: 20px;
             padding-bottom: 10px;
             border-bottom: 2px solid var(--border-color);
         }
-        #reportHeader h3 {
+        #reportHeader h3, #historyHeader h3, #pendingHistoryHeader h3 {
             color: var(--header-bg);
             margin: 5px 0;
         }
-        #reportContent {
+        #reportContent, #historyList, #viewReportContent, #pendingHistoryList {
             background-color: white;
             padding: 20px;
             border-radius: 8px;
@@ -226,38 +323,88 @@
             overflow-y: auto;
             line-height: 1.6;
         }
-        .pending-item {
-            color: var(--warning-color);
-            font-weight: bold;
-        }
-
-        /* Contenido del resumen AI */
-        #aiSummaryContent {
-            white-space: pre-wrap;
-            font-family: Arial, sans-serif;
-            font-size: 1em;
-            line-height: 1.5;
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             padding: 10px;
-            background-color: var(--ai-bg);
-            border-radius: 8px;
-            border: 1px solid #c7d2fe;
-            color: #333;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+        .history-item:hover {
+            background-color: #f9f9f9;
+        }
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        .history-item .history-actions button {
+            margin-left: 5px;
+            padding: 5px 10px;
+            font-size: 0.8em;
+        }
+        
+        /* Estilos de la lista de pendientes */
+        .pending-list-table, .pending-list-agenda, .pending-list-history {
+            list-style-type: none;
+            padding: 0;
+            margin: 5px 0;
+            text-align: left;
+            font-size: 0.9em;
+        }
+        .pending-list-table li, .pending-list-agenda li, .pending-list-history li {
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+        }
+        .pending-list-table li:hover, .pending-list-agenda li:hover, .pending-list-history li:hover {
+            color: var(--primary-button);
+        }
+        .pending-list-table input[type="checkbox"], .pending-list-agenda input[type="checkbox"], .pending-list-history input[type="checkbox"] {
+            margin-right: 8px;
+            width: auto;
+            cursor: pointer;
+        }
+        .pending-item-text {
+            flex-grow: 1;
+        }
+        .completed-pending-text {
+            text-decoration: line-through;
+            color: #999;
+        }
+        .report-content-view {
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            max-height: 500px;
+            overflow-y: auto;
         }
 
-        /* Estilos del cargador */
-        .loader {
-            border: 4px solid #f3f3f3; /* Light grey */
-            border-top: 4px solid #3498db; /* Blue */
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-            display: none;
+        /* Estilos del modal de confirmación */
+        #customAlertModal .modal-content {
+            text-align: center;
+            max-width: 350px;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        #customAlertModal .modal-content h4 {
+            color: var(--warning-color);
+            margin-top: 0;
+        }
+        #customAlertModal .modal-content p {
+            margin-bottom: 20px;
+        }
+        #customAlertModal .modal-content .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        #customAlertModal .modal-content button {
+            flex: 1;
+            margin: 0;
+        }
+        #customAlertModal .modal-content #cancelBtn {
+            background-color: #ccc;
+        }
+        #customAlertModal .modal-content #cancelBtn:hover {
+            background-color: #aaa;
         }
 
         @media print {
@@ -330,6 +477,10 @@
 
     <div class="controls">
         <div class="control-group">
+            <label for="viewToggle">Cambiar Vista:</label>
+            <button id="viewToggle" onclick="toggleView()">Vista de Calendario</button>
+        </div>
+        <div id="tableViewControls" class="control-group">
             <label for="filterDay">Filtrar por Día:</label>
             <select id="filterDay" onchange="filterSchedule()">
                 <option value="all">Todos los Días</option>
@@ -340,7 +491,6 @@
                 <option value="VIERNES">Viernes</option>
             </select>
         </div>
-
         <div class="control-group">
             <label for="filterSubject">Filtrar por Materia:</label>
             <select id="filterSubject" onchange="filterSchedule()">
@@ -351,19 +501,22 @@
         </div>
 
         <div class="control-group">
-            <label for="reportDay">Generar Reporte del Día:</label>
+            <label for="reportDay">Generar Reporte:</label>
             <select id="reportDay">
                 <option value="LUNES">Lunes</option>
                 <option value="MARTES">Martes</option>
                 <option value="MIERCOLES">Miércoles</option>
                 <option value="JUEVES">Jueves</option>
                 <option value="VIERNES">Viernes</option>
+                <option value="SEMANA">Semana Completa</option>
             </select>
-            <button onclick="generateReport()">Generar Reporte</button>
+            <button onclick="generateAndSaveReport()">Generar y Guardar Reporte</button>
+            <button id="viewHistoryButton" onclick="viewReportHistory()">Ver Historial</button>
+            <button id="viewPendingHistoryButton" onclick="viewPendingHistory()">Ver Histórico de Pendientes</button>
         </div>
     </div>
 
-    <div class="schedule-container">
+    <div id="tableView" class="schedule-container">
         <table id="scheduleTable">
             <thead>
                 <tr>
@@ -374,11 +527,11 @@
                     <th id="col-mie">Mié</th>
                     <th id="col-jue">Jue</th>
                     <th id="col-vie">Vie</th>
-                    <th>Acciones</th>
+                    <th>Temas y Pendientes</th>
                 </tr>
             </thead>
             <tbody>
-                <!-- Ordenado por hora de inicio -->
+                <!-- Contenido de las filas del horario, con celdas para los pendientes -->
                 <tr>
                     <td>PATOLOGÍA CLÍNICA II</td>
                     <td>5-1</td>
@@ -387,7 +540,7 @@
                     <td class="hora-cell" data-dia="MIERCOLES">---</td>
                     <td class="hora-cell" data-dia="JUEVES">9:40-10:30</td>
                     <td class="hora-cell" data-dia="VIERNES">8:00-9:40-</td>
-                    <td><button onclick="openTopicModal(this, 'PATOLOGÍA CLÍNICA II', '5-1')">Temas/Pendientes</button></td>
+                    <td><button onclick="openTopicModal('PATOLOGÍA CLÍNICA II', '5-1')">Temas/Pendientes</button></td>
                 </tr>
                 <tr>
                     <td>FISIOPATOLOGIA</td>
@@ -397,7 +550,7 @@
                     <td class="hora-cell" data-dia="MIERCOLES">9:40-10:30</td>
                     <td class="hora-cell" data-dia="JUEVES">----</td>
                     <td class="hora-cell" data-dia="VIERNES">----</td>
-                    <td><button onclick="openTopicModal(this, 'FISIOPATOLOGIA', '2-2')">Temas/Pendientes</button></td>
+                    <td><button onclick="openTopicModal('FISIOPATOLOGIA', '2-2')">Temas/Pendientes</button></td>
                 </tr>
                 <tr>
                     <td>PATOLOGÍA CLÍNICA II</td>
@@ -407,7 +560,7 @@
                     <td class="hora-cell" data-dia="MIERCOLES">8:00-9:40</td>
                     <td class="hora-cell" data-dia="JUEVES">10:30-11:20</td>
                     <td class="hora-cell" data-dia="VIERNES">----</td>
-                    <td><button onclick="openTopicModal(this, 'PATOLOGÍA CLÍNICA II', '5-2')">Temas/Pendientes</button></td>
+                    <td><button onclick="openTopicModal('PATOLOGÍA CLÍNICA II', '5-2')">Temas/Pendientes</button></td>
                 </tr>
                 <tr>
                     <td>FISIOPATOLOGIA</td>
@@ -417,21 +570,38 @@
                     <td class="hora-cell" data-dia="MIERCOLES">10:30-11:20</td>
                     <td class="hora-cell" data-dia="JUEVES">11:20-1:00</td>
                     <td class="hora-cell" data-dia="VIERNES">11:20-1:00</td>
-                    <td><button onclick="openTopicModal(this, 'FISIOPATOLOGIA', '2-1')">Temas/Pendientes</button></td>
+                    <td><button onclick="openTopicModal('FISIOPATOLOGIA', '2-1')">Temas/Pendientes</button></td>
                 </tr>
                 <tr>
                     <td>PATOLOGÍA CLÍNICA II</td>
                     <td>5-3</td>
-                    <!-- Horarios corregidos para el grupo 5-3 -->
                     <td class="hora-cell" data-dia="LUNES">2:20-3:40</td>
                     <td class="hora-cell" data-dia="MARTES">3:40-4:20</td>
                     <td class="hora-cell" data-dia="MIERCOLES">2:20-3:40</td>
                     <td class="hora-cell" data-dia="JUEVES">2:20-3:40</td>
                     <td class="hora-cell" data-dia="VIERNES">-----</td>
-                    <td><button onclick="openTopicModal(this, 'PATOLOGÍA CLÍNICA II', '5-3')">Temas/Pendientes</button></td>
+                    <td><button onclick="openTopicModal('PATOLOGÍA CLÍNICA II', '5-3')">Temas/Pendientes</button></td>
                 </tr>
             </tbody>
         </table>
+    </div>
+
+    <div id="calendarView" class="schedule-container calendar-view">
+        <div class="calendar-header">
+            <button onclick="previousMonth()">&lt;</button>
+            <h3 id="currentMonthYear"></h3>
+            <button onclick="nextMonth()">&gt;</button>
+        </div>
+        <div class="weekdays">
+            <span>Lun</span>
+            <span>Mar</span>
+            <span>Mié</span>
+            <span>Jue</span>
+            <span>Vie</span>
+            <span>Sáb</span>
+            <span>Dom</span>
+        </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
     </div>
 
     <div id="reportSection">
@@ -467,23 +637,67 @@
             
             <div style="text-align: center;">
                 <button onclick="saveTopicsAndPending()" style="margin-top: 10px;">Guardar</button>
-                <button onclick="generateSummaryWithAI()" id="generateSummaryButton">Generar Resumen con IA</button>
             </div>
         </div>
     </div>
 
-    <div id="summaryModal" class="modal">
+    <!-- Modal para mostrar los detalles del día y los pendientes de todos los grupos -->
+    <div id="dayDetailsModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeSummaryModal()">&times;</span>
-            <h3>Resumen Generado por IA</h3>
-            <div class="loader" id="summaryLoader"></div>
-            <div id="aiSummaryContent"></div>
+            <span class="close" onclick="closeDayDetailsModal()">&times;</span>
+            <h3 id="dayDetailsTitle">Clases del <span id="dayDetailsDate"></span></h3>
+            <div id="dayDetailsList"></div>
             <div style="text-align: center; margin-top: 20px;">
-                <button onclick="closeSummaryModal()">Cerrar</button>
+                <button onclick="closeDayDetailsModal()">Cerrar</button>
             </div>
         </div>
     </div>
 
+    <!-- Modal para el historial de reportes -->
+    <div id="historyModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeHistoryModal()">&times;</span>
+            <h3 id="historyTitle">Historial de Reportes</h3>
+            <div id="historyList"></div>
+        </div>
+    </div>
+
+    <!-- Modal para ver un reporte individual del historial -->
+    <div id="viewReportModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeViewReportModal()">&times;</span>
+            <h3 id="viewReportTitle">Reporte del <span id="viewReportDay"></span></h3>
+            <p>Fecha: <span id="viewReportDate"></span></p>
+            <div id="viewReportContent" class="report-content-view"></div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button onclick="closeViewReportModal()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para el historial de pendientes -->
+    <div id="pendingHistoryModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closePendingHistoryModal()">&times;</span>
+            <h3 id="pendingHistoryHeader">Histórico de Pendientes</h3>
+            <div id="pendingHistoryList"></div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button onclick="closePendingHistoryModal()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de alerta/confirmación personalizado -->
+    <div id="customAlertModal" class="modal">
+        <div class="modal-content">
+            <h4 id="customAlertTitle"></h4>
+            <p id="customAlertMessage"></p>
+            <div class="button-group">
+                <button id="okBtn">OK</button>
+                <button id="cancelBtn">Cancelar</button>
+            </div>
+        </div>
+    </div>
 
     <div class="footer">
         <p><strong>Inicio de clases:</strong> 25 ago 2025</p>
@@ -493,9 +707,133 @@
     </div>
 
     <script>
-        // Almacenamiento de temas y pendientes en memoria
-        let classData = {};
+        // Claves para el almacenamiento local
+        const storageKey = 'horarioProfAdrianaData';
+        const historyStorageKey = 'horarioProfAdrianaReportHistory';
+        const pendingHistoryStorageKey = 'horarioProfAdrianaPendingHistory';
 
+        // Estructura de datos para los temas y pendientes actuales y el historial
+        let classData = {};
+        let reportHistory = [];
+        let pendingHistory = [];
+
+        const daysOfWeek = ["DOMINGO", "LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO"];
+        const dayNames = {
+            'LUNES': 'Lunes', 'MARTES': 'Martes', 'MIERCOLES': 'Miércoles', 'JUEVES': 'Jueves', 'VIERNES': 'Viernes', 'SEMANA': 'Semana Completa'
+        };
+
+        // Estado de la vista
+        let currentView = 'table';
+        const viewToggleBtn = document.getElementById('viewToggle');
+        const tableView = document.getElementById('tableView');
+        const calendarView = document.getElementById('calendarView');
+        const tableViewControls = document.getElementById('tableViewControls');
+
+        /**
+         * Carga los datos de temas y pendientes guardados de localStorage.
+         */
+        function loadClassData() {
+            try {
+                const storedData = localStorage.getItem(storageKey);
+                if (storedData) {
+                    classData = JSON.parse(storedData);
+                }
+            } catch (e) {
+                console.error("Error al cargar datos de localStorage:", e);
+                showCustomAlert("Error al cargar los datos de clase. El historial no se verá afectado.");
+            }
+        }
+
+        /**
+         * Guarda los datos de temas y pendientes actuales en localStorage.
+         */
+        function saveClassData() {
+            try {
+                localStorage.setItem(storageKey, JSON.stringify(classData));
+            } catch (e) {
+                console.error("Error al guardar datos en localStorage:", e);
+                showCustomAlert("Error al guardar los datos de clase.");
+            }
+        }
+
+        /**
+         * Carga el historial de reportes desde localStorage.
+         */
+        function loadReportHistory() {
+            try {
+                const storedHistory = localStorage.getItem(historyStorageKey);
+                if (storedHistory) {
+                    reportHistory = JSON.parse(storedHistory);
+                }
+            } catch (e) {
+                console.error("Error al cargar historial de reportes:", e);
+                showCustomAlert("Error al cargar el historial de reportes.");
+            }
+        }
+
+        /**
+         * Guarda el historial de reportes en localStorage.
+         */
+        function saveReportHistory() {
+            try {
+                localStorage.setItem(historyStorageKey, JSON.stringify(reportHistory));
+            } catch (e) {
+                console.error("Error al guardar historial de reportes:", e);
+                showCustomAlert("Error al guardar el historial de reportes.");
+            }
+        }
+
+        /**
+         * Carga el historial de pendientes desde localStorage.
+         */
+        function loadPendingHistory() {
+            try {
+                const storedPendingHistory = localStorage.getItem(pendingHistoryStorageKey);
+                if (storedPendingHistory) {
+                    pendingHistory = JSON.parse(storedPendingHistory);
+                }
+            } catch (e) {
+                console.error("Error al cargar el histórico de pendientes:", e);
+                showCustomAlert("Error al cargar el histórico de pendientes.");
+            }
+        }
+
+        /**
+         * Guarda el historial de pendientes en localStorage.
+         */
+        function savePendingHistory() {
+            try {
+                localStorage.setItem(pendingHistoryStorageKey, JSON.stringify(pendingHistory));
+            } catch (e) {
+                console.error("Error al guardar el histórico de pendientes:", e);
+                showCustomAlert("Error al guardar el histórico de pendientes.");
+            }
+        }
+
+        /**
+         * Alterna entre la vista de tabla y la vista de calendario.
+         */
+        function toggleView() {
+            if (currentView === 'table') {
+                currentView = 'calendar';
+                tableView.style.display = 'none';
+                calendarView.style.display = 'block';
+                viewToggleBtn.textContent = 'Vista de Tabla';
+                tableViewControls.style.display = 'none';
+                renderCalendar();
+            } else {
+                currentView = 'table';
+                tableView.style.display = 'block';
+                calendarView.style.display = 'none';
+                viewToggleBtn.textContent = 'Vista de Calendario';
+                tableViewControls.style.display = 'flex';
+                filterSchedule(); // Restablecer filtros al volver a la vista de tabla
+            }
+        }
+
+        /**
+         * Filtra el horario según la materia y el día seleccionados.
+         */
         function filterSchedule() {
             const dayFilter = document.getElementById('filterDay').value;
             const subjectFilter = document.getElementById('filterSubject').value;
@@ -547,14 +885,15 @@
             }
         }
 
+        /**
+         * Elimina los efectos de columna aplicados.
+         */
         function resetColumnEffects() {
             const headers = document.querySelectorAll('th');
             const rows = document.querySelectorAll('tbody tr');
             
-            // Resetear encabezados
             headers.forEach(th => th.classList.remove('dimmed-column', 'highlighted-column'));
             
-            // Resetear celdas
             rows.forEach(row => {
                 Array.from(row.cells).forEach(cell => {
                     cell.classList.remove('dimmed-column', 'highlighted-column');
@@ -562,6 +901,10 @@
             });
         }
 
+        /**
+         * Aplica los efectos de resaltado y atenuación a las columnas.
+         * @param {string} selectedDay El día a resaltar.
+         */
         function applyColumnEffects(selectedDay) {
             const dayMap = {
                 'LUNES': 2, 'MARTES': 3, 'MIERCOLES': 4, 'JUEVES': 5, 'VIERNES': 6
@@ -573,13 +916,11 @@
             const headers = document.querySelectorAll('th');
             const rows = document.querySelectorAll('tbody tr');
             
-            // Resaltar columna seleccionada
             headers[colIndex].classList.add('highlighted-column');
             rows.forEach(row => {
                 row.cells[colIndex].classList.add('highlighted-column');
             });
             
-            // Atenuar otras columnas de día
             headers.forEach((th, index) => {
                 if (index >= 2 && index <= 6 && index !== colIndex) {
                     th.classList.add('dimmed-column');
@@ -598,7 +939,12 @@
         let currentMateria = '';
         let currentGrupo = '';
 
-        function openTopicModal(button, materia, grupo) {
+        /**
+         * Abre el modal para temas y pendientes de una clase específica.
+         * @param {string} materia La materia de la clase.
+         * @param {string} grupo El grupo de la clase.
+         */
+        function openTopicModal(materia, grupo) {
             currentMateria = materia;
             currentGrupo = grupo;
             
@@ -608,43 +954,240 @@
             
             // Cargar datos guardados si existen
             const key = `${materia}-${grupo}`;
-            const data = classData[key] || { topics: '', pending: '' };
+            const data = classData[key] || { topics: '', pending: [] };
             document.getElementById('topicText').value = data.topics || '';
-            document.getElementById('pendingText').value = data.pending || '';
+            document.getElementById('pendingText').value = data.pending.map(p => p.text).join('\n') || '';
             
             document.getElementById('topicModal').style.display = 'block';
         }
 
+        /**
+         * Cierra el modal de temas y pendientes.
+         */
         function closeTopicModal() {
             document.getElementById('topicModal').style.display = 'none';
             currentMateria = '';
             currentGrupo = '';
         }
 
+        /**
+         * Guarda los temas y pendientes de la clase actual.
+         */
         function saveTopicsAndPending() {
             if (currentMateria && currentGrupo) {
                 const key = `${currentMateria}-${currentGrupo}`;
+                
+                // Obtener los pendientes del textarea y convertirlos a un array de objetos
+                const pendingText = document.getElementById('pendingText').value;
+                const newPendingArray = pendingText.split('\n')
+                    .map(text => text.trim())
+                    .filter(text => text !== '');
+                
+                const oldPendingArray = classData[key]?.pending || [];
+                
+                const updatedPendingArray = newPendingArray.map(text => {
+                    // Find if the task already exists to preserve its completed status
+                    const existingTask = oldPendingArray.find(p => p.text === text);
+                    return { text, completed: existingTask ? existingTask.completed : false, timestamp: existingTask?.timestamp || Date.now() };
+                });
+
+                // Log any changes to the pending history
+                const oldTexts = new Set(oldPendingArray.map(p => p.text));
+                const newTexts = new Set(updatedPendingArray.map(p => p.text));
+                
+                // Log newly added tasks
+                newPendingArray.forEach(text => {
+                    if (!oldTexts.has(text)) {
+                        pendingHistory.push({
+                            action: 'Agregado',
+                            text: text,
+                            class: `${currentMateria} - ${currentGrupo}`,
+                            timestamp: Date.now()
+                        });
+                    }
+                });
+
+                // Log removed tasks
+                oldPendingArray.forEach(p => {
+                    if (!newTexts.has(p.text)) {
+                         pendingHistory.push({
+                            action: 'Eliminado',
+                            text: p.text,
+                            class: `${currentMateria} - ${currentGrupo}`,
+                            timestamp: Date.now()
+                        });
+                    }
+                });
+
+                // Update the class data
                 classData[key] = {
                     topics: document.getElementById('topicText').value,
-                    pending: document.getElementById('pendingText').value
+                    pending: updatedPendingArray
                 };
+                
+                saveClassData();
+                savePendingHistory();
                 showCustomAlert('Información guardada correctamente.');
                 closeTopicModal();
+                updateTablePendingLists();
+            }
+        }
+        
+        /**
+         * Generates the HTML for the pending list of a specific class.
+         * @param {string} materia The subject name.
+         * @param {string} grupo The group name.
+         * @returns {string} The HTML string for the pending list.
+         */
+        function generatePendingListHTML(materia, grupo) {
+            const key = `${materia}-${grupo}`;
+            const data = classData[key] || { topics: '', pending: [] };
+            let html = `<ul class="pending-list-table" data-key="${key}">`;
+            
+            if (data.pending && data.pending.length > 0) {
+                data.pending.forEach((p, index) => {
+                    html += `
+                        <li>
+                            <input type="checkbox" id="pending-${key}-${index}" ${p.completed ? 'checked' : ''} onchange="togglePendingStatus(this)">
+                            <label for="pending-${key}-${index}">
+                                <span class="pending-item-text ${p.completed ? 'completed-pending-text' : ''}">${p.text}</span>
+                            </label>
+                        </li>
+                    `;
+                });
+            } else {
+                html += `<li>No hay pendientes.</li>`;
+            }
+            html += `</ul>`;
+            return html;
+        }
+
+        /**
+         * Updates the pending lists displayed in the main table.
+         */
+        function updateTablePendingLists() {
+            const table = document.getElementById('scheduleTable');
+            const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+            
+            rows.forEach(row => {
+                const materia = row.cells[0].textContent.trim();
+                const grupo = row.cells[1].textContent.trim();
+                const lastCell = row.cells[row.cells.length - 1]; // This is now the "Temas y Pendientes" cell
+
+                // Find the existing button in the cell
+                const button = lastCell.querySelector('button');
+                
+                // Create a container for the new content (if it doesn't exist)
+                let container = lastCell.querySelector('.pending-container');
+                if (!container) {
+                    container = document.createElement('div');
+                    container.classList.add('pending-container');
+                    lastCell.appendChild(container);
+                }
+
+                // Append the pending list HTML
+                container.innerHTML = generatePendingListHTML(materia, grupo);
+            });
+        }
+
+
+        /**
+         * Toggles the completed status of a pending item.
+         * @param {HTMLInputElement} checkbox The checkbox element.
+         */
+        function togglePendingStatus(checkbox) {
+            const li = checkbox.closest('li');
+            const key = checkbox.closest('[data-key]').dataset.key;
+            const textSpan = li.querySelector('.pending-item-text');
+            const pendingText = textSpan.textContent.trim();
+            
+            const isCompleted = checkbox.checked;
+            
+            // Find the pending item in classData
+            const data = classData[key];
+            if (data) {
+                const pendingItem = data.pending.find(p => p.text === pendingText);
+                if (pendingItem) {
+                    pendingItem.completed = isCompleted;
+                    saveClassData();
+                    
+                    if (isCompleted) {
+                        textSpan.classList.add('completed-pending-text');
+                    } else {
+                        textSpan.classList.remove('completed-pending-text');
+                    }
+                    
+                    // Log the status change
+                    pendingHistory.push({
+                        action: isCompleted ? 'Completado' : 'Reabierto',
+                        text: pendingText,
+                        class: key,
+                        timestamp: Date.now()
+                    });
+                    savePendingHistory();
+                }
             }
         }
 
-        // Generar reporte
-        function generateReport() {
+
+        /**
+         * Genera un reporte basado en los datos actuales y lo guarda en el historial.
+         */
+        function generateAndSaveReport() {
             const selectedDay = document.getElementById('reportDay').value;
-            
-            // Actualizar encabezado del reporte
-            document.getElementById('reportDayHeader').textContent = selectedDay;
-            document.getElementById('reportDate').textContent = new Date().toLocaleDateString('es-ES', {
+            const reportDate = new Date().toLocaleDateString('es-ES', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric'
             });
+
+            const reportContent = (selectedDay === 'SEMANA') ? generateWeeklyReport(classData) : generateDailyReport(selectedDay, classData);
+
+            // Crear el objeto del reporte
+            const newReport = {
+                id: Date.now(),
+                date: reportDate,
+                day: dayNames[selectedDay],
+                content: reportContent
+            };
+
+            // Guardar el reporte en el historial
+            reportHistory.unshift(newReport); // Añadir al principio para que los más nuevos aparezcan primero
+            saveReportHistory();
+
+            // Borrar los datos actuales de los campos de texto
+            clearCurrentData();
             
+            // Mostrar el reporte generado en el área de reporte
+            document.getElementById('reportDate').textContent = newReport.date;
+            document.getElementById('reportDayHeader').textContent = newReport.day;
+            document.getElementById('reportContent').textContent = newReport.content;
+            document.getElementById('reportSection').style.display = 'block';
+
+            showCustomAlert('Reporte generado y guardado en el historial.');
+        }
+
+        /**
+         * Limpia los datos de temas y pendientes de la aplicación.
+         */
+        function clearCurrentData() {
+            // Vaciar el objeto de datos actual
+            classData = {};
+            // Persistir el borrado en localStorage
+            saveClassData(); 
+            // Limpiar los valores de los cuadros de texto directamente
+            document.getElementById('topicText').value = '';
+            document.getElementById('pendingText').value = '';
+            updateTablePendingLists();
+        }
+
+        /**
+         * Genera el contenido de un reporte diario.
+         * @param {string} selectedDay El día del reporte.
+         * @param {object} dataToReport Los datos a incluir en el reporte.
+         * @returns {string} El contenido del reporte en formato de texto.
+         */
+        function generateDailyReport(selectedDay, dataToReport) {
             let report = '';
             const rows = document.querySelectorAll('tbody tr');
             let foundClasses = false;
@@ -658,11 +1201,11 @@
                 horaCells.forEach(cell => {
                     if (cell.getAttribute('data-dia') === selectedDay) {
                         const horaText = cell.textContent.trim();
-                        // Verificar que no sea un marcador de "sin clase"
                         if (!(horaText === '----' || horaText === '---' || horaText === '-----')) {
+                            const key = `${materia}-${grupo}`;
                             classInfo = {
                                 hora: horaText,
-                                data: classData[`${materia}-${grupo}`] || { topics: '', pending: '' }
+                                data: dataToReport[key] || { topics: '', pending: [] }
                             };
                         }
                     }
@@ -679,8 +1222,14 @@
                         report += `TEMAS: No se han registrado temas.\n`;
                     }
                     
-                    if (classInfo.data.pending) {
-                        report += `PENDIENTES: ${classInfo.data.pending}\n`;
+                    if (classInfo.data.pending && classInfo.data.pending.length > 0) {
+                        const completedTasks = classInfo.data.pending.filter(p => p.completed).map(p => `[COMPLETADO] ${p.text}`).join('\n');
+                        const pendingTasks = classInfo.data.pending.filter(p => !p.completed).map(p => `[PENDIENTE] ${p.text}`).join('\n');
+                        
+                        report += `PENDIENTES:\n`;
+                        if(pendingTasks) report += `${pendingTasks}\n`;
+                        if(completedTasks) report += `${completedTasks}\n`;
+
                     } else {
                         report += `PENDIENTES: No hay pendientes registrados.\n`;
                     }
@@ -690,105 +1239,452 @@
             });
             
             if (!foundClasses) {
-                report = `No hay clases programadas para el ${selectedDay}.\n`;
+                report = `No hay clases programadas para el ${dayNames[selectedDay]}.`;
             }
+            return report;
+        }
+
+        /**
+         * Genera el contenido de un reporte semanal.
+         * @param {object} dataToReport Los datos a incluir en el reporte.
+         * @returns {string} El contenido del reporte en formato de texto.
+         */
+        function generateWeeklyReport(dataToReport) {
+            const daysToReport = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES'];
+            let weeklyReport = '';
             
-            document.getElementById('reportContent').textContent = report;
-            document.getElementById('reportSection').style.display = 'block';
-        }
-
-        // Funciones para el modal de resumen de IA
-        function openSummaryModal() {
-            document.getElementById('summaryModal').style.display = 'block';
-        }
-
-        function closeSummaryModal() {
-            document.getElementById('summaryModal').style.display = 'none';
-        }
-
-        async function generateSummaryWithAI() {
-            const topics = document.getElementById('topicText').value.trim();
-
-            if (topics === '') {
-                showCustomAlert('Por favor, ingresa algunos temas para generar el resumen.');
-                return;
-            }
-
-            // Ocultar modal de temas y mostrar modal de resumen con cargador
-            closeTopicModal();
-            openSummaryModal();
-            const summaryLoader = document.getElementById('summaryLoader');
-            const summaryContent = document.getElementById('aiSummaryContent');
-            summaryContent.textContent = '';
-            summaryLoader.style.display = 'block';
-
-            const prompt = `Genera un resumen conciso y claro en español de los siguientes temas de clase. El resumen debe ser breve y directo. Evita añadir información adicional o frases introductorias, solo el resumen directo. Temas: "${topics}"`;
-
-            let chatHistory = [];
-            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+            daysToReport.forEach(day => {
+                weeklyReport += `\n========================================\n`;
+                weeklyReport += `         REPORTE DE ${dayNames[day].toUpperCase()}\n`;
+                weeklyReport += `========================================\n\n`;
+                weeklyReport += generateDailyReport(day, dataToReport);
+                weeklyReport += `\n`;
+            });
             
-            const payload = { contents: chatHistory };
-            const apiKey = "";
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-
-            try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const result = await response.json();
-                
-                if (result.candidates && result.candidates.length > 0 &&
-                    result.candidates[0].content && result.candidates[0].content.parts &&
-                    result.candidates[0].content.parts.length > 0) {
-                    const text = result.candidates[0].content.parts[0].text;
-                    summaryContent.textContent = text;
-                } else {
-                    summaryContent.textContent = "No se pudo generar un resumen. Inténtalo de nuevo.";
-                }
-
-            } catch (error) {
-                console.error('Error al llamar a la API de Gemini:', error);
-                summaryContent.textContent = 'Hubo un error al generar el resumen. Por favor, revisa la consola para más detalles.';
-            } finally {
-                summaryLoader.style.display = 'none';
-            }
+            return weeklyReport;
         }
 
         // Función para mostrar un mensaje personalizado en lugar de alert()
-        function showCustomAlert(message) {
-            const modal = document.createElement('div');
-            modal.style.position = 'fixed';
-            modal.style.top = '50%';
-            modal.style.left = '50%';
-            modal.style.transform = 'translate(-50%, -50%)';
-            modal.style.backgroundColor = 'white';
-            modal.style.padding = '20px';
-            modal.style.border = '1px solid #ccc';
-            modal.style.borderRadius = '8px';
-            modal.style.boxShadow = '0 4px 10px rgba(0,0,0,0.2)';
-            modal.style.zIndex = '1001';
-            modal.innerHTML = `<p>${message}</p><button onclick="this.parentNode.remove()">OK</button>`;
-            document.body.appendChild(modal);
+        let customAlertResolve;
+        function showCustomAlert(message, title = 'Aviso', isConfirm = false) {
+            const modal = document.getElementById('customAlertModal');
+            document.getElementById('customAlertTitle').textContent = title;
+            document.getElementById('customAlertMessage').textContent = message;
+            
+            const okBtn = document.getElementById('okBtn');
+            const cancelBtn = document.getElementById('cancelBtn');
+
+            if (isConfirm) {
+                okBtn.textContent = 'Eliminar';
+                okBtn.style.backgroundColor = 'var(--warning-color)';
+                okBtn.style.display = 'inline-block';
+                cancelBtn.style.display = 'inline-block';
+            } else {
+                okBtn.textContent = 'OK';
+                okBtn.style.backgroundColor = 'var(--primary-button)';
+                okBtn.style.display = 'inline-block';
+                cancelBtn.style.display = 'none';
+            }
+
+            modal.style.display = 'block';
+
+            return new Promise((resolve) => {
+                customAlertResolve = resolve;
+                okBtn.onclick = () => {
+                    modal.style.display = 'none';
+                    resolve(true);
+                };
+                cancelBtn.onclick = () => {
+                    modal.style.display = 'none';
+                    resolve(false);
+                };
+            });
         }
+
 
         // Cerrar modal al hacer clic fuera
         window.onclick = function(event) {
             const topicModal = document.getElementById('topicModal');
-            const summaryModal = document.getElementById('summaryModal');
+            const dayDetailsModal = document.getElementById('dayDetailsModal');
+            const historyModal = document.getElementById('historyModal');
+            const viewReportModal = document.getElementById('viewReportModal');
+            const pendingHistoryModal = document.getElementById('pendingHistoryModal');
+            const customAlertModal = document.getElementById('customAlertModal');
+
             if (event.target === topicModal) {
                 closeTopicModal();
             }
-            if (event.target === summaryModal) {
-                closeSummaryModal();
+            if (event.target === dayDetailsModal) {
+                closeDayDetailsModal();
+            }
+            if (event.target === historyModal) {
+                closeHistoryModal();
+            }
+            if (event.target === viewReportModal) {
+                closeViewReportModal();
+            }
+            if (event.target === pendingHistoryModal) {
+                closePendingHistoryModal();
+            }
+            if (event.target === customAlertModal && customAlertModal.style.display === 'block') {
+                 // No cerrar el modal de confirmación si se hace clic fuera
             }
         }
+
+        /* Funciones del calendario */
+        let currentDate = new Date();
+
+        /**
+         * Renderiza la vista del calendario para el mes actual.
+         */
+        function renderCalendar() {
+            const calendarGrid = document.getElementById('calendarGrid');
+            calendarGrid.innerHTML = '';
+            
+            const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+            
+            document.getElementById('currentMonthYear').textContent = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+            
+            const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+            const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+            const startDayIndex = (firstDayOfMonth.getDay() + 6) % 7; // Lunes = 0
+            
+            // Agregar celdas vacías para los días del mes anterior
+            for (let i = 0; i < startDayIndex; i++) {
+                const cell = document.createElement('div');
+                cell.classList.add('calendar-cell', 'empty');
+                calendarGrid.appendChild(cell);
+            }
+            
+            // Llenar celdas para los días del mes actual
+            for (let day = 1; day <= daysInMonth; day++) {
+                const cell = document.createElement('div');
+                cell.classList.add('calendar-cell');
+                
+                const dayDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+                const dayOfWeek = dayDate.getDay(); // 0 = Domingo, 1 = Lunes, ..., 6 = Sábado
+                const dayName = daysOfWeek[dayOfWeek];
+                
+                const daySpan = document.createElement('span');
+                daySpan.textContent = day;
+                cell.appendChild(daySpan);
+
+                // Agregar clase si es la fecha de hoy
+                const today = new Date();
+                if (day === today.getDate() && currentDate.getMonth() === today.getMonth() && currentDate.getFullYear() === today.getFullYear()) {
+                    cell.classList.add('today');
+                }
+
+                // Habilitar explícitamente de lunes a viernes
+                if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+                    cell.classList.add('has-class'); // Estilo visual para días con clase
+                    cell.onclick = function() {
+                        showDayAgenda(dayName);
+                    };
+                } else {
+                    // Deshabilitar Sábados y Domingos
+                    cell.classList.add('disabled');
+                    cell.onclick = null; // Quitar el evento de click
+                }
+                
+                calendarGrid.appendChild(cell);
+            }
+        }
+
+        function previousMonth() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+        }
+
+        function nextMonth() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+        }
+        
+        /* FUNCIONES PARA EL MODAL DE DETALLES DEL DÍA */
+        /**
+         * Muestra un modal con los detalles de las clases y los pendientes para un día.
+         * @param {string} dayName El nombre del día de la semana.
+         */
+        function showDayAgenda(dayName) {
+            const rows = document.querySelectorAll('#scheduleTable tbody tr');
+            const dayDetailsList = document.getElementById('dayDetailsList');
+            dayDetailsList.innerHTML = '';
+            
+            let foundClasses = false;
+
+            // Mostrar las clases del día seleccionado
+            rows.forEach(row => {
+                const materia = row.cells[0].textContent.trim();
+                const grupo = row.cells[1].textContent.trim();
+                const horaCells = row.querySelectorAll('.hora-cell');
+                
+                let classTime = '';
+                horaCells.forEach(cell => {
+                    if (cell.getAttribute('data-dia') === dayName) {
+                        const horaText = cell.textContent.trim();
+                        if (!(horaText === '----' || horaText === '---' || horaText === '-----')) {
+                            classTime = horaText;
+                        }
+                    }
+                });
+                
+                if (classTime) {
+                    foundClasses = true;
+                    const key = `${materia}-${grupo}`;
+                    const classDataEntry = classData[key] || { topics: 'No se han registrado temas.', pending: [] };
+                    
+                    const classItem = document.createElement('div');
+                    classItem.classList.add('class-list-item');
+                    
+                    let pendingHtml = '';
+                    if (classDataEntry.pending && classDataEntry.pending.length > 0) {
+                        pendingHtml += '<ul class="pending-list-agenda">';
+                        classDataEntry.pending.forEach((p, index) => {
+                             pendingHtml += `
+                                <li>
+                                    <input type="checkbox" id="agenda-pending-${key}-${index}" ${p.completed ? 'checked' : ''} onchange="togglePendingStatusFromAgenda('${key}', ${index}, this)">
+                                    <label for="agenda-pending-${key}-${index}">
+                                        <span class="pending-item-text ${p.completed ? 'completed-pending-text' : ''}">${p.text}</span>
+                                    </label>
+                                </li>
+                            `;
+                        });
+                        pendingHtml += '</ul>';
+                    } else {
+                        pendingHtml = '<p>No hay pendientes.</p>';
+                    }
+
+                    classItem.innerHTML = `
+                        <h4>${materia} - Grupo ${grupo}</h4>
+                        <p><strong>Horario:</strong> ${classTime}</p>
+                        <p><strong>Temas:</strong> ${classDataEntry.topics}</p>
+                        <p><strong>Pendientes:</strong></p>
+                        ${pendingHtml}
+                        <div class="agenda-actions">
+                            <button onclick="openTopicModal('${materia}', '${grupo}')">Gestionar</button>
+                        </div>
+                    `;
+                    dayDetailsList.appendChild(classItem);
+                }
+            });
+
+            if (!foundClasses) {
+                dayDetailsList.innerHTML = `<p style="text-align: center;">No hay clases programadas para el ${dayNames[dayName]}.</p>`;
+            }
+            
+            document.getElementById('dayDetailsDate').textContent = dayNames[dayName];
+            document.getElementById('dayDetailsModal').style.display = 'block';
+        }
+        
+        /**
+         * Toggles the completed status of a pending item from the agenda view.
+         * @param {string} key The key for the class data.
+         * @param {number} index The index of the pending item.
+         * @param {HTMLInputElement} checkbox The checkbox element.
+         */
+        function togglePendingStatusFromAgenda(key, index, checkbox) {
+            const isCompleted = checkbox.checked;
+            
+            if (classData[key] && classData[key].pending[index]) {
+                classData[key].pending[index].completed = isCompleted;
+                saveClassData();
+                
+                // Update the visual state
+                const span = checkbox.nextElementSibling.querySelector('span');
+                if (isCompleted) {
+                    span.classList.add('completed-pending-text');
+                } else {
+                    span.classList.remove('completed-pending-text');
+                }
+                
+                // Log the status change
+                pendingHistory.push({
+                    action: isCompleted ? 'Completado' : 'Reabierto',
+                    text: classData[key].pending[index].text,
+                    class: key,
+                    timestamp: Date.now()
+                });
+                savePendingHistory();
+            }
+        }
+
+
+        function closeDayDetailsModal() {
+            document.getElementById('dayDetailsModal').style.display = 'none';
+        }
+
+        // Funciones del historial de reportes
+        /**
+         * Muestra el modal del historial de reportes.
+         */
+        function viewReportHistory() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+            
+            if (reportHistory.length === 0) {
+                historyList.innerHTML = `<p style="text-align: center;">No hay reportes guardados aún.</p>`;
+            } else {
+                reportHistory.forEach(report => {
+                    const item = document.createElement('div');
+                    item.classList.add('history-item');
+                    item.innerHTML = `
+                        <span><strong>${report.day}</strong> - ${report.date}</span>
+                        <div class="history-actions">
+                            <button onclick="openViewReportModal('${report.id}')">Ver</button>
+                            <button onclick="confirmDeleteReport('${report.id}')" style="background-color: var(--warning-color);">Eliminar</button>
+                        </div>
+                    `;
+                    historyList.appendChild(item);
+                });
+            }
+            
+            document.getElementById('historyModal').style.display = 'block';
+        }
+
+        /**
+         * Elimina un reporte del historial después de una confirmación.
+         * @param {string} reportId El ID del reporte a eliminar.
+         */
+        async function confirmDeleteReport(reportId) {
+            const confirmed = await showCustomAlert('¿Estás seguro de que quieres eliminar este reporte? Esta acción no se puede deshacer.', 'Confirmar eliminación', true);
+            if (confirmed) {
+                deleteReportFromHistory(reportId);
+            }
+        }
+
+        /**
+         * Elimina un reporte del historial y actualiza el almacenamiento.
+         * @param {string} reportId El ID del reporte a eliminar.
+         */
+        function deleteReportFromHistory(reportId) {
+            reportHistory = reportHistory.filter(report => report.id != reportId);
+            saveReportHistory();
+            viewReportHistory(); // Recargar la lista del historial
+        }
+
+        function closeHistoryModal() {
+            document.getElementById('historyModal').style.display = 'none';
+        }
+        
+        function openViewReportModal(reportId) {
+            const report = reportHistory.find(r => r.id == reportId);
+            if (report) {
+                document.getElementById('viewReportTitle').textContent = `Reporte del ${report.day}`;
+                document.getElementById('viewReportDate').textContent = report.date;
+                document.getElementById('viewReportContent').textContent = report.content;
+                document.getElementById('viewReportModal').style.display = 'block';
+            }
+        }
+
+        function closeViewReportModal() {
+            document.getElementById('viewReportModal').style.display = 'none';
+        }
+
+        // Funciones del histórico de pendientes
+        function viewPendingHistory() {
+            const pendingHistoryList = document.getElementById('pendingHistoryList');
+            pendingHistoryList.innerHTML = '';
+
+            if (pendingHistory.length === 0) {
+                pendingHistoryList.innerHTML = `<p style="text-align: center;">No hay registro de pendientes aún.</p>`;
+            } else {
+                const sortedHistory = [...pendingHistory].sort((a, b) => b.timestamp - a.timestamp);
+                
+                // Group items by their class to make it easier to manage
+                const groupedHistory = sortedHistory.reduce((acc, item) => {
+                    const key = item.class;
+                    if (!acc[key]) {
+                        acc[key] = [];
+                    }
+                    acc[key].push(item);
+                    return acc;
+                }, {});
+
+                for (const key in groupedHistory) {
+                    const [materia, grupo] = key.split(' - ');
+                    const classTitle = document.createElement('h4');
+                    classTitle.textContent = `${materia} - Grupo ${grupo}`;
+                    pendingHistoryList.appendChild(classTitle);
+                    
+                    const ul = document.createElement('ul');
+                    ul.classList.add('pending-list-history');
+                    ul.dataset.key = key;
+                    
+                    groupedHistory[key].forEach((item, index) => {
+                         const li = document.createElement('li');
+                         li.innerHTML = `
+                            <input type="checkbox" id="history-pending-${key}-${index}" ${item.action === 'Completado' ? 'checked' : ''} onchange="togglePendingStatusFromHistory('${key}', '${item.text}', this)">
+                            <label for="history-pending-${key}-${index}">
+                                <span class="pending-item-text ${item.action === 'Completado' ? 'completed-pending-text' : ''}"><strong>[${item.action}]</strong> ${item.text}</span>
+                            </label>
+                         `;
+                        ul.appendChild(li);
+                    });
+                    
+                    pendingHistoryList.appendChild(ul);
+                }
+            }
+
+            document.getElementById('pendingHistoryModal').style.display = 'block';
+        }
+        
+        /**
+         * Toggles the completion status of a pending item directly from the history view.
+         * This function finds the corresponding item in the main classData object and updates it.
+         * @param {string} key The class key (e.g., 'Materia - Grupo').
+         * @param {string} pendingText The text of the pending item.
+         * @param {HTMLInputElement} checkbox The checkbox element that was toggled.
+         */
+        function togglePendingStatusFromHistory(key, pendingText, checkbox) {
+            const isCompleted = checkbox.checked;
+            
+            // 1. Find the item in the main classData object and update it.
+            const data = classData[key];
+            if (data) {
+                const pendingItem = data.pending.find(p => p.text === pendingText);
+                if (pendingItem) {
+                    pendingItem.completed = isCompleted;
+                    saveClassData();
+                }
+            }
+            
+            // 2. Add a new log entry to the pending history.
+            pendingHistory.push({
+                action: isCompleted ? 'Completado' : 'Reabierto',
+                text: pendingText,
+                class: key,
+                timestamp: Date.now()
+            });
+            savePendingHistory();
+            
+            // 3. Update the visual state in the history modal.
+            const span = checkbox.nextElementSibling.querySelector('span');
+            if (isCompleted) {
+                span.classList.add('completed-pending-text');
+                span.innerHTML = `<strong>[Completado]</strong> ${pendingText}`;
+            } else {
+                span.classList.remove('completed-pending-text');
+                span.innerHTML = `<strong>[Reabierto]</strong> ${pendingText}`;
+            }
+            
+            // 4. Update the main table to reflect the change.
+            updateTablePendingLists();
+        }
+
+        function closePendingHistoryModal() {
+            document.getElementById('pendingHistoryModal').style.display = 'none';
+        }
+
+        // Cargar datos y inicializar al cargar la página
+        window.onload = function() {
+            loadClassData();
+            loadReportHistory();
+            loadPendingHistory();
+            filterSchedule();
+            updateTablePendingLists();
+            renderCalendar();
+        };
     </script>
 
 </body>
